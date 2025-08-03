@@ -20,7 +20,7 @@
             <textarea name="remarks" class="w-full border p-2 rounded"></textarea>
         </div>
 
-        <button class="bg-green-600 text-white px-4 py-2 rounded">Submit</button>
+        <button class="bg-green-600 text-white font-bold px-4 py-2 rounded hover:shadow-lg">Submit</button>
     </form>
 </div>
 @endsection

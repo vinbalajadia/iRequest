@@ -9,7 +9,7 @@
             </div>
         @endif
 
-        <form action="{{ route('profile.update') }}" method="POST" enctype="multipart/form-data">
+        <form action="{{ route('student.edit-profile') }}" method="POST" enctype="multipart/form-data">
             @csrf
 
             <div class="mb-4">
@@ -27,7 +27,7 @@
                 <input type="file" name="profile_photo" class="w-full border px-3 py-2 rounded">
             </div>
 
-            <button class="bg-green-600 text-white px-4 py-2 rounded">Save Changes</button>
+            <button class="bg-green-600 text-white px-4 py-2 rounded hover:shadow-lg">Save Changes</button>
         </form>
     </div>
 @endsection

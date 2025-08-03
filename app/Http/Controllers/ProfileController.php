@@ -1,5 +1,5 @@
-<?
-namespace App\Http\Controllers\Student;
+<?php
+namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -9,6 +9,7 @@ class ProfileController extends Controller
 {
     public function edit()
     {
+        $user = Auth::user();
         return view('student.edit-profile', ['user' => Auth::user()]);
     }
 

@@ -12,11 +12,23 @@
         <nav class="bg-white shadow-md px-6 py-4 flex justify-between items-center">
             <h1 class="text-2xl font-bold text-green-600">iRequest</h1>
             <div class="flex items-center gap-4">
-                <span class="text-gray-700">{{ Auth::user()->name }}</span>
-                <form method="POST" action="{{ route('logout') }}">
+                @php
+                    $user = Auth::user();
+                    $inital = strtoupper(substr($user->name, 0, 1));
+                @endphp
+
+                @if ($user->profile_photo_path)
+                    <img src="{{ asset('storage/' . $user->profile_photo_path) }}" alt="Profile Photo" class="w-10 h-10 rounded-full title="{{ $user->name }}">
+                @else
+                    <div class="w-10 h-10 bg-gray-300 text-white flex items-center justify-center rounded-full">
+                        {{ $inital }}
+                    </div>
+                @endif
+
+                <form method="POST" action="{{ route('logout') }}" class="inline">
                     @csrf
-                    <button class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded">Logout</button>
-                </form>
+                    <button class="bg-red-600 hover:bg-red-600 text-white px-3 py-1 rounded">Logout</button>
+                    
             </div>
         </nav>
 

@@ -10,6 +10,10 @@ use Illuminate\Support\Facades\Auth;
 class RequestController extends Controller
 {
 
+    public function login() {
+        return view('student.login');
+    }
+
     public function myRequest()
     {
         return view('student.my-request', [
@@ -41,4 +45,6 @@ class RequestController extends Controller
 
         return redirect()->route('dashboard')->with('success', 'Request submitted successfully!');
     }
+
+    
 }
