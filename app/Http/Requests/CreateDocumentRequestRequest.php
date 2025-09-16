@@ -11,7 +11,7 @@ class CreateDocumentRequestRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return auth('web')->check();
     }
 
     /**
@@ -22,7 +22,17 @@ class CreateDocumentRequestRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'document_type' => 'required|string|max:255',
+            'purpose' => 'required|string|max:500',
+        ];
+    }
+
+    public function messages(): array
+    {
+        return[
+            'document_type.required' => 'The document type field is required.',
+            'document_type.in' => 'Invalid document type selected.',
+            'purpose.required' => 'Please specify the purpose for this request',
         ];
     }
 }
