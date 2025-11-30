@@ -34,6 +34,11 @@ class DocumentRequestRepository implements DocumentRequestRepositoryInterface
 
     public function create(array $data)
     {
+        // Generate request number if not provided
+        if (!isset($data['request_number'])) {
+            $data['request_number'] = $this->generateRequestNumber();
+        }
+
         return $this->model->create($data);
     }
 
@@ -116,15 +121,18 @@ class DocumentRequestRepository implements DocumentRequestRepositoryInterface
         return $this->model->paginate($perPage);
     }
 
-    public function generateRequestNumber()
+    private function generateRequestNumber()
     {
         $year = date('Y');
         $month = date('m');
-        $latestRequest = $this->model->whereYear('created_at', $year)
+
+        $lastRequest = $this->model->whereYear('created_at', $year)
             ->whereMonth('created_at', $month)
             ->orderBy('created_at', 'desc')
             ->first();
-        $sequence = $latestRequest ? intval(substr($latestRequest->request_number, -4)) + 1 : 1;
-        return sprintf('REQ-%s%s-%04d', $year, $month, $sequence);
+
+        $sequence = $lastRequest ? ((int) substr($lastRequest->request_number, -4)) + 1 : 1;
+
+        return sprintf('REQ-%s-%s-%04d', $year, $month, $sequence);
     }
 }
