@@ -21,14 +21,14 @@ class RedirectIfAuthenticated
         foreach ($guards as $guard) {
             if (Auth::guard($guard)->check()) {
                 if ($guard === 'admin') {
-                    return redirect()->route('');
+                    return redirect()->route('admin.dashboard');
                 }
 
                 if ($guard === 'web') {
-                    return redirect()->route('');
+                    return redirect()->route('student.dashboard');
                 }
 
-                return redirect()->route('');
+                return redirect()->route('welcome');
             }
         }
 

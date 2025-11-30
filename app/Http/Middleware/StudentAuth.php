@@ -16,14 +16,14 @@ class StudentAuth
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if(!Auth::guard('web')->check()) {
+        if(!Auth::guard('student')->check()) {
             if($request->expectsJson()) {
                 return response()->json([
                     'message' => 'Unauthenticated. Please login as a student.'
                 ], 401);
             }
 
-            return redirect()->route('')
+            return redirect()->route('student.login')
                 ->with('error', 'You must be logged in as a student to access this page.');
         }
 

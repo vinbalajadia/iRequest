@@ -23,17 +23,16 @@ class AdminAuth
                 ], 401);
             }
 
-            return redirect()->route('')
+            return redirect()->route('admin.login')
                 ->with('error', 'You must be logged in as an admin to access this page.');
         }
 
-        //Check if admin is active
         $admin = Auth::guard('admin')->user();
 
         if (!$admin->is_active) {
             Auth::guard('admin')->logout();
 
-            return redirect()->route('')
+            return redirect()->route('admin.login')
                 ->with('error', 'Your admin account is inactive. Please contact the system administrator.');
         }
 
