@@ -22,9 +22,9 @@ class AdminLoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => 'required|email|max:255',
-            'password' => 'required|string|min:8',
-            'remember_me' => 'nullable|boolean',
+            'email' => ['required', 'string'],
+            'password' => ['required', 'string'],
+            'remember_me' => ['nullable', 'boolean'],
         ];
     }
 
@@ -34,7 +34,6 @@ class AdminLoginRequest extends FormRequest
             'email.required' => 'Email is required.',
             'email.email' => 'Please provide a valid email address.',
             'password.required' => 'Password is required.',
-            'password.min' => 'Password must be at least 8 characters long.',
         ];
     }
 }

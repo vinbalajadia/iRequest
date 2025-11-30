@@ -12,7 +12,7 @@ class CreateDocumentRequestRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return auth('web')->check();
+        return auth('student')->check();
     }
 
     /**
@@ -20,7 +20,7 @@ class CreateDocumentRequestRequest extends FormRequest
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
-    public function rules(): array
+    public function rules()
     {
         return [
             'document_type' => [
@@ -28,11 +28,20 @@ class CreateDocumentRequestRequest extends FormRequest
                 'string',
                 'in:' . implode(',', array_keys(DocumentRequest::DOCUMENT_TYPES))
             ],
-            'purpose' => 'required|string|min:10|max:500',
-            'copies' => 'nullable|integer|min:1|max:10',
+            'purpose' => [
+                'required',
+                'string',
+                'min:10',
+                'max:500'
+            ],
+            'copies' => [
+                'nullable',
+                'integer',
+                'min:1',
+                'max:10'
+            ],
         ];
     }
-
     public function messages(): array
     {
         return [
@@ -46,20 +55,25 @@ class CreateDocumentRequestRequest extends FormRequest
         ];
     }
 
-    public function withValidator($validator)
+public function withValidator($validator)
     {
         $validator->after(function ($validator) {
-            $student = auth('web')->user();
-
-            $existingRequest = $student->documentRequests()
-                ->where('document_type', $this->input('document_type'))
-                ->whereIn('status', ['pending', 'approved'])
+            // Change from 'web' to 'student'
+            $student = auth('student')->user(); // ← Changed this line
+            
+            if (!$student) {
+                return;
+            }
+            
+            $existingRequest = $student->documentRequest() // Note: should be documentRequest not documentRequests
+                ->where('document_type', $this->document_type)
+                ->whereIn('status', ['pending', 'processing'])
                 ->exists();
 
             if ($existingRequest) {
                 $validator->errors()->add(
                     'document_type',
-                    'You already have a pending or approved request for this document type.'
+                    'You already have a pending request for this document type.'
                 );
             }
         });

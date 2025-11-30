@@ -33,23 +33,19 @@ class StoreAdminRequest extends FormRequest
                 'max:50',
                 Rule::unique('admins', 'employee_id')->ignore($adminId),
             ],
-            'first_name' => 'required|string|max:100|regex:/^[a-zA-Z\s]+$/',
-            'middle_name' => 'nullable|string|max:100|regex:/^[a-zA-Z\s]+$/',
-            'last_name' => 'required|string|max:100|regex:/^[a-zA-Z\s]+$/',
+            'first_name' => ['required', 'string', 'max:255'],
+            'middle_name' => ['required', 'string', 'max:255'],
+            'last_name' => ['required', 'string', 'max:255'],
             'email' => [
                 'required',
                 'email',
                 'max:255',
-                Rule::unique('admins', 'email')->ignore($adminId),
+                Rule::unique('admin')->ignore($adminId),
             ],
             'password' => [
-                'required',
+                $this->isMethod('POST') ? 'required' : 'nullable',
                 'confirmed',
-                Password::min(8)
-                    ->mixedCase()
-                    ->letters()
-                    ->numbers()
-                    ->symbols()
+                Password::min(8)->mixedCase()->numbers()
             ],
             'department' => [
                 'required',
@@ -61,7 +57,7 @@ class StoreAdminRequest extends FormRequest
                 'string',
                 'in:' . implode(',', array_keys(Admin::ROLES)),
             ],
-            'is_active' => 'nullable|boolean',
+            'is_active' => ['nullable', 'boolean'],
         ];
     }
 
