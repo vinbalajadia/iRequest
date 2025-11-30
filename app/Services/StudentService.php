@@ -16,12 +16,13 @@ class StudentService
 
     public function createStudent(array $data)
     {
-        if (!isset($data['password'])) {
+        if (isset($data['password'])) {
             $data['password'] = Hash::make($data['password']);
         }
 
         return $this->studentRepository->create($data);
     }
+
 
     public function updateStudent($id, array $data)
     {
