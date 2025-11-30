@@ -2,16 +2,14 @@
 
 namespace App\Models;
 
-use Illuminate\Container\Attributes\Auth;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Laravel\Sanctum\HasApiTokens;
 
 class Student extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
+    use HasApiTokens, HasFactory, Notifiable;
 
     protected $fillable = [
         'student_id',
@@ -31,8 +29,7 @@ class Student extends Authenticatable
     ];
 
     protected $casts = [
-        'email_verfied_at' => 'datetime',
-        'password' => 'hashed',
+        'email_verified_at' => 'datetime',
         'year_level' => 'integer',
     ];
 
@@ -61,10 +58,6 @@ class Student extends Authenticatable
         return $query->where('year_level', $yearLevel);
     }
 
-    public function scopeActive($query)
-    {
-        return $query->whereNull('deleted_at');
-    }
 
     public function hasActiveRequests()
     {
@@ -73,19 +66,19 @@ class Student extends Authenticatable
             ->exists();
     }
 
-    public function getTotalRequestCount()
+    public function getTotalRequestsCount()
     {
         return $this->documentRequest()->count();
     }
 
-    public function getPendingRequestCount()
+    public function getPendingRequestsCount()
     {
         return $this->documentRequest()
             ->where('status', 'pending')
             ->count();
     }
 
-    public function getCompletedRequestCount()
+    public function getCompletedRequestsCount()
     {
         return $this->documentRequest()
             ->where('status', 'completed')

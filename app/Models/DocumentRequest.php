@@ -4,13 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 
 class DocumentRequest extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
 
     protected $fillable = [
         'request_number',
@@ -56,6 +55,16 @@ class DocumentRequest extends Model
         self::STATUS_COMPLETED => 'Completed',
     ];
 
+    public static function getDocumentTypes()
+    {
+        return self::DOCUMENT_TYPES;
+    }
+
+    public static function getStatuses()
+    {
+        return self::STATUSES;
+    }
+
     //Relationships
     public function student()
     {
@@ -64,10 +73,10 @@ class DocumentRequest extends Model
 
     public function processedBy()
     {
-        return $this->belongsTo(User::class, 'processed_by');
+        return $this->belongsTo(Admin::class, 'processed_by');
     }
 
-    //Accesors and Mutators
+    //Accessors and Mutators
     public function getDocumentTypeNameAttribute()
     {
         return self::DOCUMENT_TYPES[$this->document_type] ?? $this->document_type;
@@ -111,7 +120,7 @@ class DocumentRequest extends Model
 
     public function getIsActiveAttribute()
     {
-        return in_array($this->status, [self::STATUS_COMPLETED, self::STATUS_REJECTED]);
+        return !in_array($this->status, [self::STATUS_COMPLETED, self::STATUS_REJECTED]);
     }
 
     public function getEstimatedCompletionAttribute()
@@ -132,6 +141,7 @@ class DocumentRequest extends Model
         return $this->created_at->addDays($processingDays);
     }
 
+    // Scopes
     public function scopeByStatus($query, $status)
     {
         return $query->where('status', $status);
@@ -155,11 +165,6 @@ class DocumentRequest extends Model
     public function scopeCompleted($query)
     {
         return $query->where('status', self::STATUS_COMPLETED);
-    }
-
-    public function scopeActive($query)
-    {
-        return $query->where('status', [self::STATUS_COMPLETED, self::STATUS_REJECTED]);
     }
 
     public function scopeByStudent($query, $studentId)
@@ -233,16 +238,47 @@ class DocumentRequest extends Model
         return $this;
     }
 
+    // ✅ UPDATED boot() method with request number generation
     protected static function boot()
     {
         parent::boot();
+
+        static::creating(function ($request) {
+            // Auto-generate request number
+            if (empty($request->request_number)) {
+                $request->request_number = self::generateRequestNumber();
+            }
+            
+            // Set default status if not set
+            if (empty($request->status)) {
+                $request->status = self::STATUS_PENDING;
+            }
+        });
 
         static::created(function ($request) {
             Log::info("New Document Request created: {$request->request_number}");
         });
 
         static::updated(function ($request) {
-            Log::info("Request {$request->request_number} status updated to: {$request->status}");
+            if ($request->wasChanged('status')) {
+                Log::info("Request {$request->request_number} status updated to: {$request->status}");
+            }
         });
+    }
+
+    // ✅ ADD this method to generate request numbers
+    public static function generateRequestNumber()
+    {
+        $year = date('Y');
+        $month = date('m');
+        
+        $lastRequest = self::whereYear('created_at', $year)
+                          ->whereMonth('created_at', $month)
+                          ->orderBy('created_at', 'desc')
+                          ->first();
+
+        $sequence = $lastRequest ? ((int)substr($lastRequest->request_number, -4)) + 1 : 1;
+        
+        return sprintf('REQ-%s-%s-%04d', $year, $month, $sequence);
     }
 }
